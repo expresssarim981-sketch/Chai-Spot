@@ -305,20 +305,111 @@ const defaults=[{name:"Doodh Patti",price:180},{name:"Karak Chai",price:150},{na
 let db=(()=>{try{return JSON.parse(localStorage.getItem("chaiSpotDB")||"null")}catch(e){console.warn("Saved data could not be read",e);return null}})()||{menu:defaults,sales:[],expenses:[],stock:[],settings:{cafe:"Chai Spot",phone:"0309 7751743",address:"UMT Road, Gulshan-e-Mustafa Society, Johar Town, Lahore",paper:"80"}};
 let cart=[]; let lastSaleId=null;
 const money=n=>"Rs "+Number(n||0).toLocaleString("en-PK",{maximumFractionDigits:2});
-function save(){try{localStorage.setItem("chaiSpotDB",JSON.stringify(db));refresh()}catch(e){alert("Data save error: "+e.message)}}
-function showTab(id,btn){document.querySelectorAll(".tab").forEach(x=>x.classList.add("hidden"));document.getElementById(id).classList.remove("hidden");document.querySelectorAll("nav button").forEach(x=>x.classList.remove("active"));if(btn)btn.classList.add("active");refresh()}
-function today(){return new Date().toLocaleDateString("en-CA")}
-function sameDay(d){return new Date(d).toLocaleDateString("en-CA")===today()}
-function refresh(){renderDashboard();renderProducts();renderCart();renderSales();renderExpenses();renderStock();renderReport();loadSettings()}
-function renderDashboard(){let s=db.sales.filter(x=>sameDay(x.date)).reduce((a,x)=>a+x.total,0),e=db.expenses.filter(x=>sameDay(x.date)).reduce((a,x)=>a+x.amount,0);todaySales.textContent=money(s);todayExpenses.textContent=money(e);todayNet.textContent=money(s-e);todayOrders.textContent=db.sales.filter(x=>sameDay(x.date)).length}
-function renderProducts(){productGrid.innerHTML=db.menu.map((p,i)=>`<button class="product" onclick="addCart(${i})"><b>${esc(p.name)}</b>${money(p.price)}</button>`).join("")}
-function addMenuItem(){let n=newItemName.value.trim(),p=+newItemPrice.value;if(!n||p<=0)return alert("Enter item name and valid price");db.menu.push({name:n,price:p});newItemName.value="";newItemPrice.value="";save()}
-function addCart(i){let p=db.menu[i],found=cart.find(x=>x.name===p.name);if(found)found.qty++;else cart.push({name:p.name,price:p.price,qty:1});renderCart()}
-function renderCart(){cartRows.innerHTML=cart.map((x,i)=>`<tr><td>${esc(x.name)}</td><td><button class="secondary" onclick="changeQty(${i},-1)">−</button> ${x.qty} <button class="secondary" onclick="changeQty(${i},1)">+</button></td><td>${money(x.price)}</td><td>${money(x.price*x.qty)}</td><td><button class="danger" onclick="cart.splice(${i},1);renderCart()">×</button></td></tr>`).join("");let sub=cart.reduce((a,x)=>a+x.price*x.qty,0),disc=Math.max(0,+discount.value||0),tax=sub*Math.max(0,+taxRate.value||0)/100;subtotal.textContent=money(sub);taxValue.textContent=money(tax);discountValue.textContent=money(disc);grandTotal.textContent=money(Math.max(0,sub+tax-disc))}
-function changeQty(i,d){cart[i].qty+=d;if(cart[i].qty<=0)cart.splice(i,1);renderCart()}
-function clearCart(){cart=[];renderCart()}
-function completeSale(){if(!cart.length)return alert("Please add items first");let sub=cart.reduce((a,x)=>a+x.price*x.qty,0),disc=Math.max(0,+discount.value||0),tax=sub*Math.max(0,+taxRate.value||0)/100,total=Math.max(0,sub+tax-disc);let sale={id:"CS-"+Date.now().toString().slice(-8),date:new Date().toISOString(),items:cart.map(x=>({...x})),subtotal:sub,discount:disc,tax,total,payment:paymentMethod.value,table:tableNo.value||"Takeaway",cashier:cashier.value||"—"};db.sales.unshift(sale);lastSaleId=sale.id;save();makeReceipt(sale);cart=[];tableNo.value="";document.getElementById("quickPrint").classList.remove("hidden");}
-function makeReceipt(s){
+
+async function completeSale() {
+  if (!cart.length) return alert("Please add items first");
+
+  const sub = cart.reduce((a, x) => a + x.price * x.qty, 0);
+  const disc = Math.max(0, +discount.value || 0);
+  const tax = sub * Math.max(0, +taxRate.value || 0) / 100;
+  const total = Math.max(0, sub + tax - disc);
+
+  const billNo = "CS-" + Date.now().toString().slice(-8);
+
+  const sale = {
+    id: billNo,
+    date: new Date().toISOString(),
+    items: cart.map(x => ({ ...x })),
+    subtotal: sub,
+    discount: disc,
+    tax,
+    total,
+    payment: paymentMethod.value,
+    table: tableNo.value || "Takeaway",
+    cashier: cashier.value || "—"
+  };
+
+  try {
+    // 1. Create order
+    const { data: order, error: orderError } = await supabaseClient
+      .from("orders")
+      .insert({
+        customer_name: "Walk-in Customer",
+        customer_phone: "",
+        total: total,
+        status: "pending",
+        payment_method: sale.payment,
+        table_no: sale.table,
+        cashier: sale.cashier,
+        subtotal: sub,
+        discount: disc,
+        tax: tax,
+        bill_number: billNo
+      })
+      .select()
+      .single();
+
+    if (orderError) throw orderError;
+
+    // 2. Match products with database IDs
+    const { data: products, error: productsError } = await supabaseClient
+      .from("products")
+      .select("id,name");
+
+    if (productsError) throw productsError;
+
+    const orderItems = [];
+
+    for (const item of cart) {
+      const product = products.find(
+        p => p.name.trim().toLowerCase() === item.name.trim().toLowerCase()
+      );
+
+      if (!product) {
+        throw new Error("Product not found in database: " + item.name);
+      }
+
+      orderItems.push({
+        order_id: order.id,
+        product_id: product.id,
+        quantity: item.qty,
+        price: item.price
+      });
+    }
+
+    // 3. Save order items
+    const { error: itemsError } = await supabaseClient
+      .from("order_items")
+      .insert(orderItems);
+
+    if (itemsError) throw itemsError;
+
+    // 4. Complete order (inventory trigger may run here)
+    const { error: completeError } = await supabaseClient
+      .from("orders")
+      .update({ status: "completed" })
+      .eq("id", order.id);
+
+    if (completeError) throw completeError;
+
+    // 5. Update local display and print receipt
+    db.sales.unshift(sale);
+    lastSaleId = sale.id;
+    save();
+    makeReceipt(sale);
+
+    cart = [];
+    tableNo.value = "";
+    document.getElementById("quickPrint").classList.remove("hidden");
+
+    alert("Sale saved successfully!");
+
+  } catch (error) {
+    console.error("Sale Error:", error);
+    alert("Sale save error: " + error.message);
+  }
+}
+
 const cfg=db.settings||{}, p=cfg.print||{};
 const on=(k,def=true)=>p[k]===undefined?def:!!p[k];
 const font=Number(p.font||9), compact=(p.spacing||"compact")==="compact";
