@@ -229,6 +229,7 @@ h1{font-size:23px}
 sb_publishable_vvK_d8X_QDm045_fB8sBww_HFzqDlYJ
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   async function testSupabaseConnection() {
+    loadProductsFromSupabase();
   const { data, error } = await supabaseClient
     .from('categories')
     .select('*')
