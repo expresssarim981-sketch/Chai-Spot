@@ -222,8 +222,12 @@ h1{font-size:23px}
 </div></section>
 <div id="receiptArea"><div class="receipt" id="receipt"></div></div><div id="kitchenArea"><div class="receipt" id="kitchenTicket"></div></div>
 </main></div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // Explicit DOM references for reliable operation across browsers.
+  const SUPABASE_URL = "https://zyyguhispdilyagymfvq.supabase.co";
+const SUPABASE_ANON_KEY = "PASTE_YOUR_SB_PUBLISHABLE_KEY_HERE";
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const todaySales = document.getElementById("todaySales");
 const todayExpenses = document.getElementById("todayExpenses");
 const todayNet = document.getElementById("todayNet");
@@ -435,4 +439,4 @@ const box=document.getElementById("systemError");
 if(box){box.classList.remove("hidden");box.textContent="Startup error: "+e.message;}
 console.error(e);
 }
-</script></body></html>
+</script></body></html>html>
