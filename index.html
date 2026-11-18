@@ -1,0 +1,438 @@
+Line wrap
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chai Spot | Cafe Management</title>
+<style>
+:root{--bg:#101010;--panel:#1b1b1b;--panel2:#242424;--gold:#d6ad55;--muted:#aaa;--line:#383838;--green:#5bc28a;--red:#e47777}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:#f6f1e7;font:14px Arial,sans-serif}
+header{background:#080808;border-bottom:1px solid #40351e;padding:16px 22px;display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap}
+.brand{font-size:24px;font-weight:800;color:var(--gold);letter-spacing:1px}.sub{color:#aaa;font-size:12px;margin-top:4px}
+header small{color:#bbb}.layout{display:flex;min-height:calc(100vh - 70px)}nav{width:205px;background:#141414;border-right:1px solid var(--line);padding:14px 10px}
+nav button{display:block;width:100%;text-align:left;background:transparent;border:0;color:#ddd;padding:12px;border-radius:8px;margin:3px 0;cursor:pointer}
+nav button.active,nav button:hover{background:#332a19;color:var(--gold)}main{padding:22px;flex:1;min-width:0;max-width:1500px;margin:auto}
+h1{font-size:24px;margin:0 0 6px}h2{font-size:18px;color:var(--gold);margin:0 0 14px}.muted{color:var(--muted)}.gold{color:var(--gold)}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin:18px 0}
+.card,.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px}.metric{font-size:25px;font-weight:700;margin-top:8px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px}.row{display:flex;gap:10px;flex-wrap:wrap;align-items:end}
+label{display:block;color:#c8c1b4;font-size:12px;margin:9px 0 5px}
+input,select{background:#101010;border:1px solid #4a4437;border-radius:7px;padding:10px;color:white;min-width:0;width:100%}
+.field{flex:1;min-width:130px}button.primary,.btn{background:var(--gold);color:#17120a;border:0;border-radius:7px;padding:10px 14px;font-weight:700;cursor:pointer}
+button.secondary{background:#333;color:#eee;border:1px solid #555;border-radius:7px;padding:10px 14px;cursor:pointer}
+button.danger{background:#572b2b;color:white;border:0;border-radius:7px;padding:9px 12px;cursor:pointer}
+table{width:100%;border-collapse:collapse;margin-top:12px}th,td{padding:10px 8px;border-bottom:1px solid var(--line);text-align:left}th{color:var(--gold);font-size:12px}td{font-size:13px}
+.tablewrap{overflow:auto}.hidden{display:none!important}.pill{padding:4px 8px;border-radius:20px;background:#3b321e;color:var(--gold);font-size:11px}
+.product-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:9px;margin-top:12px}
+.product{background:#29251d;border:1px solid #57472a;color:#fff;padding:13px;border-radius:9px;text-align:left;cursor:pointer}
+.product b{display:block;color:var(--gold);margin-bottom:6px}.total{font-size:22px;color:var(--gold);font-weight:bold}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.note{font-size:12px;color:#aaa;line-height:1.5}.section{margin-bottom:18px}
+@media(max-width:700px){.layout{display:block}nav{width:100%;display:flex;overflow:auto;border-right:0;border-bottom:1px solid var(--line)}nav button{min-width:max-content;width:auto}main{padding:14px}}
+@media print{body{background:white!important;color:black!important;margin:0!important}.no-print,header,nav,main>*:not(#receiptArea):not(#kitchenArea){display:none!important}#receiptArea,#kitchenArea{display:block!important;color:#000}.receipt{color:#000!important;border:0!important;width:var(--paper-width,72mm)!important;max-width:var(--paper-width,72mm)!important;padding:2mm!important;margin:0!important;box-shadow:none!important}.receipt *{color:#000!important}}
+.receipt{background:white;color:#111;width:280px;margin:0 auto;padding:7px;font:10px Arial;border-radius:5px;line-height:1.25}
+.receipt h2{color:#111;text-align:center;font-size:14px;margin:0 0 3px}.receipt p{text-align:center;margin:2px 0}.receipt table{color:#111;font-size:9px;margin-top:5px}.receipt th,.receipt td{color:#111;border-bottom:1px dashed #aaa;padding:2px 1px;font-size:9px}.receipt .grand{font-size:13px;font-weight:bold;text-align:right;margin-top:5px}
+#receiptArea,#kitchenArea{display:none}
+
+/* Chai Spot Professional UI Refresh */
+:root{
+--bg:#0b0d10; --panel:#15191f; --panel2:#1d232b; --gold:#d9b66d;
+--muted:#9ca6b2; --line:#2b333d; --green:#59c28b; --red:#e47777;
+}
+*{box-sizing:border-box}
+body{
+background:radial-gradient(ellipse at 15% 0%,#1b2028 0%,#0b0d10 48%);
+color:#f4f1e9;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+letter-spacing:.1px
+}
+header{
+position:sticky;top:0;z-index:20;background:rgba(9,11,14,.94);
+backdrop-filter:blur(12px);border-bottom:1px solid rgba(217,182,109,.25);
+padding:17px 26px;min-height:82px
+}
+.brand{font-size:25px;letter-spacing:2px;font-weight:850}
+.sub{font-size:11px;letter-spacing:.35px}
+header small{display:block;line-height:1.8;text-align:right;color:#c0c6ce}
+.layout{min-height:calc(100vh - 82px)}
+nav{
+width:232px;flex:0 0 232px;background:rgba(15,18,23,.92);
+border-right:1px solid var(--line);padding:22px 13px
+}
+nav:before{
+content:"MAIN MENU";display:block;color:#788391;font-size:10px;font-weight:800;
+letter-spacing:1.8px;padding:0 13px 12px
+}
+nav button{
+display:flex;align-items:center;gap:11px;width:100%;padding:12px 14px;
+margin:5px 0;border:1px solid transparent;border-radius:10px;
+color:#b9c1cb;font-size:13px;font-weight:650;transition:.18s ease
+}
+nav button:hover{background:#202630;color:#fff;border-color:#303946;transform:translateX(2px)}
+nav button.active{
+color:#f2d99e;background:linear-gradient(110deg,rgba(217,182,109,.17),rgba(217,182,109,.05));
+border-color:rgba(217,182,109,.32);box-shadow:inset 3px 0 0 var(--gold)
+}
+main{padding:30px 32px;max-width:1600px}
+h1{font-size:27px;letter-spacing:-.7px;font-weight:780;margin:0 0 7px}
+h2{font-size:15px;letter-spacing:.2px;color:#e4c783;font-weight:750;margin:0 0 16px}
+.muted{font-size:12px;color:#929daa}
+.cards{gap:15px;margin:23px 0}
+.card,.panel{
+background:linear-gradient(145deg,rgba(27,33,41,.98),rgba(18,22,28,.98));
+border:1px solid #303945;border-radius:15px;padding:19px;
+box-shadow:0 8px 24px rgba(0,0,0,.14)
+}
+.card{color:#aeb8c4;font-size:12px;font-weight:650;position:relative;overflow:hidden}
+.card:after{content:"";position:absolute;width:90px;height:90px;border:1px solid rgba(217,182,109,.12);border-radius:50%;right:-30px;top:-38px}
+.metric{font-size:27px;letter-spacing:-.8px;color:#f5e6c3;margin-top:12px}
+.grid2{gap:16px}
+label{font-size:11px;font-weight:700;letter-spacing:.35px;color:#aeb8c4;margin:12px 0 6px}
+input,select{
+background:#0e1217;border:1px solid #35404c;border-radius:9px;padding:11px 12px;
+color:#f4f1e9;outline:none;transition:border .15s,box-shadow .15s
+}
+input:focus,select:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(217,182,109,.12)}
+button.primary,.btn{
+background:linear-gradient(135deg,#e4c783,#c69b4e);color:#17130b;
+border:1px solid #e6ca8b;border-radius:9px;padding:11px 16px;
+font-weight:800;box-shadow:0 4px 12px rgba(198,155,78,.13);transition:.15s
+}
+button.primary:hover,.btn:hover{filter:brightness(1.07);transform:translateY(-1px)}
+button.secondary{
+background:#252d37;color:#e0e5eb;border:1px solid #3b4653;
+border-radius:9px;padding:10px 14px;font-weight:650
+}
+button.secondary:hover{background:#303a46}
+button.danger{border-radius:8px}
+table{margin-top:14px}
+th{color:#d9b66d;background:rgba(217,182,109,.055);font-size:10px;letter-spacing:.8px;text-transform:uppercase}
+th,td{padding:12px 10px;border-bottom:1px solid #2b333d}
+td{color:#d7dde5;font-size:12px}
+tbody tr:hover{background:rgba(255,255,255,.025)}
+.product-grid{grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:11px}
+.product{
+background:linear-gradient(145deg,#252c35,#1a2027);border:1px solid #3b4652;
+border-radius:11px;padding:15px;min-height:75px;transition:.16s
+}
+.product:hover{border-color:var(--gold);background:#2b3035;transform:translateY(-2px)}
+.product b{font-size:13px;color:#f0d69d}
+.total{font-size:25px;color:#f0d69d;margin-top:7px}
+.actions{gap:9px}
+.note{font-size:11px;line-height:1.7;color:#9ba6b2}
+.pill{background:rgba(217,182,109,.13);border:1px solid rgba(217,182,109,.2);color:#e4c783}
+.section{margin-bottom:18px}
+#quickPrint{border-color:rgba(89,194,139,.35);background:rgba(36,75,58,.16)}
+#quickPrint b{color:#7dd8a6}
+#systemError{background:rgba(120,35,35,.2)!important}
+.receipt{border-radius:0}
+@media(max-width:850px){
+.layout{display:block}
+nav{width:100%;display:flex;overflow-x:auto;padding:10px;border-right:0;border-bottom:1px solid var(--line)}
+nav:before{display:none}
+nav button{min-width:max-content;width:auto;margin:0 4px;padding:10px 12px}
+main{padding:20px 15px}
+header{padding:14px 16px}
+}
+@media(max-width:520px){
+header{align-items:flex-start}
+header small{text-align:left}
+h1{font-size:23px}
+.cards{grid-template-columns:repeat(2,minmax(0,1fr))}
+.card{padding:14px}
+.metric{font-size:22px}
+.row{align-items:stretch}
+.field{min-width:100%}
+}
+
+.print-option{width:auto;min-width:0;margin:0 7px 0 0;accent-color:#d9b66d;vertical-align:middle}
+#printFooterText{width:100%}
+@media print{
+.receipt{font-size:var(--receipt-font,9px)!important;padding:var(--receipt-padding,2mm)!important}
+.receipt table,.receipt th,.receipt td{font-size:calc(var(--receipt-font,9px) - 1px)!important}
+}
+</style></head>
+<body>
+<header><div><div class="brand">☕ CHAI SPOT</div><div class="sub">CAFE MANAGEMENT SUITE · PROFESSIONAL EDITION</div><div class="sub" style="color:#d6ad55">OFFLINE MODE · Your business data stays on this device</div></div><div><small>UMT Road, Gulshan-e-Mustafa Society, Johar Town, Lahore<br>0309 7751743</small></div></header>
+<div class="layout">
+<nav class="no-print">
+<button class="active" onclick="showTab('dashboard',this)">▦ Dashboard</button>
+<button onclick="showTab('pos',this)">＋ New Sale / POS</button>
+<button onclick="showTab('sales',this)">▤ Sales</button>
+<button onclick="showTab('expenses',this)">− Expenses</button>
+<button onclick="showTab('inventory',this)">▣ Inventory</button>
+<button onclick="showTab('reports',this)">▥ Reports</button>
+<button onclick="showTab('settings',this)">⚙ Settings</button>
+</nav>
+<main><div id="systemError" class="panel hidden" style="border-color:#a44;color:#ffd0d0;margin-bottom:14px"></div>
+<section id="dashboard" class="tab">
+<h1>Dashboard</h1><div class="muted">Today’s business overview</div>
+<div class="cards">
+<div class="card">Today's Sales<div class="metric" id="todaySales">Rs 0</div></div>
+<div class="card">Today's Expenses<div class="metric" id="todayExpenses">Rs 0</div></div>
+<div class="card">Estimated Net<div class="metric" id="todayNet">Rs 0</div></div>
+<div class="card">Total Orders<div class="metric" id="todayOrders">0</div></div>
+</div>
+<div class="grid2"><div class="panel"><h2>Quick Actions</h2><div class="actions"><button class="primary" onclick="showTab('pos')">Create New Bill</button><button class="secondary" onclick="showTab('expenses')">Add Expense</button><button class="secondary" onclick="showTab('inventory')">Manage Stock</button></div></div>
+<div class="panel"><h2>Important</h2><p class="note">Sales and expenses are saved in this browser on this device. This demo is not yet connected to a cloud database or multiple devices.</p><p class="note">Net shown here = sales minus recorded expenses. Ingredient cost / tax accounting can be configured in the production version.</p></div></div>
+</section>
+<section id="pos" class="tab hidden">
+<h1>New Sale / POS</h1><div class="muted">Select products, take payment, then print customer receipt or kitchen token.</div>
+<div class="grid2" style="margin-top:16px"><div class="panel"><h2>Menu Items</h2><div class="row"><div class="field"><label>Item name</label><input id="newItemName" placeholder="e.g. Doodh Patti"></div><div class="field"><label>Price (PKR)</label><input id="newItemPrice" type="number" min="0" placeholder="250"></div><button class="primary" onclick="addMenuItem()">Add</button></div><div id="productGrid" class="product-grid"></div></div>
+<div class="panel"><h2>Current Order</h2><div class="row"><div class="field"><label>Table / Order type</label><input id="tableNo" placeholder="Table 1 / Takeaway"></div><div class="field"><label>Cashier</label><input id="cashier" placeholder="Cashier name"></div></div>
+<div class="tablewrap"><table><thead><tr><th>Item</th><th>Qty</th><th>Price</th><th>Total</th><th></th></tr></thead><tbody id="cartRows"></tbody></table></div>
+<div class="row"><div class="field"><label>Discount (PKR)</label><input id="discount" type="number" value="0" min="0" oninput="renderCart()"></div><div class="field"><label>Tax %</label><input id="taxRate" type="number" value="0" min="0" oninput="renderCart()"></div></div>
+<div class="row"><div class="field"><label>Payment method</label><select id="paymentMethod"><option>Cash</option><option>Card</option><option>JazzCash</option><option>Easypaisa</option></select></div></div>
+<div style="text-align:right;margin-top:14px">Subtotal: <span id="subtotal">Rs 0</span><br>Tax: <span id="taxValue">Rs 0</span><br>Discount: <span id="discountValue">Rs 0</span><div class="total" id="grandTotal">Rs 0</div></div>
+<div class="actions"><button class="primary" onclick="completeSale()">Complete Sale</button><button class="secondary" onclick="clearCart()">Clear</button></div><div id="quickPrint" class="panel hidden" style="margin-top:14px"><b class="gold">Sale saved successfully</b><p class="note">اب رسید پرنٹ کرنے کے لیے نیچے بٹن دبائیں۔</p><div class="actions"><button class="primary" onclick="printLastReceipt()">🖨 Print Bill</button><button class="secondary" onclick="printLastKitchen()">Kitchen Token</button></div></div></div></div>
+</section>
+<section id="sales" class="tab hidden"><h1>Sales History</h1><div class="panel"><div class="row"><div class="field"><label>Search bill / cashier</label><input id="saleSearch" oninput="renderSales()" placeholder="Search..."></div></div><div class="tablewrap"><table><thead><tr><th>Bill</th><th>Date & Time</th><th>Order</th><th>Payment</th><th>Total</th><th>Print</th></tr></thead><tbody id="salesRows"></tbody></table></div></div></section>
+<section id="expenses" class="tab hidden"><h1>Expenses</h1><div class="panel"><h2>Add Expense</h2><div class="row"><div class="field"><label>Description</label><input id="expenseDesc" placeholder="Electricity bill"></div><div class="field"><label>Category</label><select id="expenseCat"><option>Utilities</option><option>Staff Salary</option><option>Rent</option><option>Delivery</option><option>Maintenance</option><option>Other</option></select></div><div class="field"><label>Amount (PKR)</label><input id="expenseAmount" type="number" min="1"></div><button class="primary" onclick="addExpense()">Save Expense</button></div></div><div class="panel section"><h2>Expense Records</h2><div class="tablewrap"><table><thead><tr><th>Date</th><th>Description</th><th>Category</th><th>Amount</th></tr></thead><tbody id="expenseRows"></tbody></table></div></div></section>
+<section id="inventory" class="tab hidden"><h1>Inventory</h1><div class="panel"><h2>Add / Receive Stock</h2><div class="row"><div class="field"><label>Ingredient / Item</label><input id="stockName" placeholder="Tea leaves"></div><div class="field"><label>Category</label><select id="stockCat"><option>Tea & Coffee</option><option>Dairy Products</option><option>Fast Food</option><option>Cold Drinks</option><option>Grocery & Spices</option><option>Packaging</option><option>Other</option></select></div><div class="field"><label>Quantity</label><input id="stockQty" type="number" min="0"></div><div class="field"><label>Unit</label><input id="stockUnit" placeholder="kg / litre / pcs"></div><div class="field"><label>Minimum stock</label><input id="stockMin" type="number" min="0"></div><button class="primary" onclick="addStock()">Save Stock</button></div></div><div class="panel"><h2>Stock List</h2><div class="tablewrap"><table><thead><tr><th>Item</th><th>Category</th><th>Available</th><th>Unit</th><th>Minimum</th><th>Status</th><th>Stock In</th></tr></thead><tbody id="stockRows"></tbody></table></div></div></section>
+<section id="reports" class="tab hidden"><h1>Reports</h1><div class="panel"><h2>Business Summary</h2><div class="row"><div class="field"><label>From date</label><input type="date" id="reportFrom"></div><div class="field"><label>To date</label><input type="date" id="reportTo"></div><button class="primary" onclick="renderReport()">Generate</button><button class="secondary" onclick="window.print()">Print Report</button></div><div class="cards"><div class="card">Sales<div class="metric" id="reportSales">Rs 0</div></div><div class="card">Expenses<div class="metric" id="reportExpenses">Rs 0</div></div><div class="card">Net<div class="metric" id="reportNet">Rs 0</div></div><div class="card">Orders<div class="metric" id="reportOrders">0</div></div></div><p class="note">For accurate profit reporting, record all operating expenses and configure recipe-based ingredient cost/COGS. Stock purchases should not also be counted as an expense if ingredient usage is being costed, otherwise expenses may be double-counted.</p></div></section>
+<section id="settings" class="tab hidden"><h1>Settings</h1>
+<div class="panel section"><h2>Cafe & Receipt Details</h2>
+<div class="grid2">
+<div><label>Cafe name</label><input id="settingCafe" value="Chai Spot"></div>
+<div><label>Phone</label><input id="settingPhone" value="0309 7751743"></div>
+</div>
+<label>Address</label><input id="settingAddress" value="UMT Road, Gulshan-e-Mustafa Society, Johar Town, Lahore">
+<div class="grid2">
+<div><label>Paper width</label><select id="paperWidth"><option value="58">58mm Thermal</option><option value="80" selected>80mm Thermal</option></select></div>
+<div><label>Receipt font size</label><select id="printFontSize"><option value="8">Extra Small</option><option value="9" selected>Small</option><option value="10">Normal</option><option value="11">Large</option><option value="12">Extra Large</option></select></div>
+<div><label>Print spacing</label><select id="printSpacing"><option value="compact" selected>Compact (less paper)</option><option value="normal">Normal</option></select></div>
+</div></div>
+<div class="panel section"><h2>Customize What Appears on Receipt</h2>
+<div class="grid2">
+<div>
+<label><input class="print-option" type="checkbox" id="printShowAddress" checked> Show cafe address</label>
+<label><input class="print-option" type="checkbox" id="printShowPhone" checked> Show phone number</label>
+<label><input class="print-option" type="checkbox" id="printShowCashier" checked> Show cashier name</label>
+<label><input class="print-option" type="checkbox" id="printShowOrderType" checked> Show table / takeaway</label>
+<label><input class="print-option" type="checkbox" id="printShowDate" checked> Show date & time</label>
+</div><div>
+<label><input class="print-option" type="checkbox" id="printShowSubtotal" checked> Show subtotal</label>
+<label><input class="print-option" type="checkbox" id="printShowTax" checked> Show tax</label>
+<label><input class="print-option" type="checkbox" id="printShowDiscount" checked> Show discount</label>
+<label><input class="print-option" type="checkbox" id="printShowPayment" checked> Show payment method</label>
+<label><input class="print-option" type="checkbox" id="printShowFooter" checked> Show thank-you message</label>
+</div></div>
+<label>Custom footer message</label><input id="printFooterText" placeholder="Thank you for visiting Chai Spot!">
+<div class="actions"><button class="primary" onclick="saveSettings()">Save Print Settings</button><button class="secondary" onclick="previewPrint()">Print Preview</button><button class="secondary" onclick="exportData()">Export Backup (JSON)</button></div>
+<p class="note">Print Preview میں browser کا print window کھلے گا۔ وہاں اپنا thermal printer منتخب کریں، paper size اور margins بھی printer settings میں درست رکھیں۔</p>
+</div></section>
+<div id="receiptArea"><div class="receipt" id="receipt"></div></div><div id="kitchenArea"><div class="receipt" id="kitchenTicket"></div></div>
+</main></div>
+<script>
+// Explicit DOM references for reliable operation across browsers.
+const todaySales = document.getElementById("todaySales");
+const todayExpenses = document.getElementById("todayExpenses");
+const todayNet = document.getElementById("todayNet");
+const todayOrders = document.getElementById("todayOrders");
+const productGrid = document.getElementById("productGrid");
+const newItemName = document.getElementById("newItemName");
+const newItemPrice = document.getElementById("newItemPrice");
+const cartRows = document.getElementById("cartRows");
+const discount = document.getElementById("discount");
+const taxRate = document.getElementById("taxRate");
+const subtotal = document.getElementById("subtotal");
+const taxValue = document.getElementById("taxValue");
+const discountValue = document.getElementById("discountValue");
+const grandTotal = document.getElementById("grandTotal");
+const paymentMethod = document.getElementById("paymentMethod");
+const tableNo = document.getElementById("tableNo");
+const cashier = document.getElementById("cashier");
+const quickPrint = document.getElementById("quickPrint");
+const saleSearch = document.getElementById("saleSearch");
+const salesRows = document.getElementById("salesRows");
+const expenseDesc = document.getElementById("expenseDesc");
+const expenseAmount = document.getElementById("expenseAmount");
+const expenseCat = document.getElementById("expenseCat");
+const expenseRows = document.getElementById("expenseRows");
+const stockName = document.getElementById("stockName");
+const stockQty = document.getElementById("stockQty");
+const stockUnit = document.getElementById("stockUnit");
+const stockMin = document.getElementById("stockMin");
+const stockCat = document.getElementById("stockCat");
+const stockRows = document.getElementById("stockRows");
+const reportFrom = document.getElementById("reportFrom");
+const reportTo = document.getElementById("reportTo");
+const reportSales = document.getElementById("reportSales");
+const reportExpenses = document.getElementById("reportExpenses");
+const reportNet = document.getElementById("reportNet");
+const reportOrders = document.getElementById("reportOrders");
+const settingCafe = document.getElementById("settingCafe");
+const settingPhone = document.getElementById("settingPhone");
+const settingAddress = document.getElementById("settingAddress");
+const paperWidth = document.getElementById("paperWidth");
+const receipt = document.getElementById("receipt");
+const kitchenTicket = document.getElementById("kitchenTicket");
+const printFontSize = document.getElementById("printFontSize");
+const printSpacing = document.getElementById("printSpacing");
+const printShowAddress = document.getElementById("printShowAddress");
+const printShowPhone = document.getElementById("printShowPhone");
+const printShowCashier = document.getElementById("printShowCashier");
+const printShowOrderType = document.getElementById("printShowOrderType");
+const printShowDate = document.getElementById("printShowDate");
+const printShowSubtotal = document.getElementById("printShowSubtotal");
+const printShowTax = document.getElementById("printShowTax");
+const printShowDiscount = document.getElementById("printShowDiscount");
+const printShowPayment = document.getElementById("printShowPayment");
+const printShowFooter = document.getElementById("printShowFooter");
+const printFooterText = document.getElementById("printFooterText");
+
+const defaults=[{name:"Doodh Patti",price:180},{name:"Karak Chai",price:150},{name:"Green Tea",price:120},{name:"French Fries",price:250},{name:"Club Sandwich",price:450},{name:"Zinger Burger",price:500},{name:"Cold Drink",price:100},{name:"Paratha",price:100}];
+let db=(()=>{try{return JSON.parse(localStorage.getItem("chaiSpotDB")||"null")}catch(e){console.warn("Saved data could not be read",e);return null}})()||{menu:defaults,sales:[],expenses:[],stock:[],settings:{cafe:"Chai Spot",phone:"0309 7751743",address:"UMT Road, Gulshan-e-Mustafa Society, Johar Town, Lahore",paper:"80"}};
+let cart=[]; let lastSaleId=null;
+const money=n=>"Rs "+Number(n||0).toLocaleString("en-PK",{maximumFractionDigits:2});
+function save(){try{localStorage.setItem("chaiSpotDB",JSON.stringify(db));refresh()}catch(e){alert("Data save error: "+e.message)}}
+function showTab(id,btn){document.querySelectorAll(".tab").forEach(x=>x.classList.add("hidden"));document.getElementById(id).classList.remove("hidden");document.querySelectorAll("nav button").forEach(x=>x.classList.remove("active"));if(btn)btn.classList.add("active");refresh()}
+function today(){return new Date().toLocaleDateString("en-CA")}
+function sameDay(d){return new Date(d).toLocaleDateString("en-CA")===today()}
+function refresh(){renderDashboard();renderProducts();renderCart();renderSales();renderExpenses();renderStock();renderReport();loadSettings()}
+function renderDashboard(){let s=db.sales.filter(x=>sameDay(x.date)).reduce((a,x)=>a+x.total,0),e=db.expenses.filter(x=>sameDay(x.date)).reduce((a,x)=>a+x.amount,0);todaySales.textContent=money(s);todayExpenses.textContent=money(e);todayNet.textContent=money(s-e);todayOrders.textContent=db.sales.filter(x=>sameDay(x.date)).length}
+function renderProducts(){productGrid.innerHTML=db.menu.map((p,i)=>`<button class="product" onclick="addCart(${i})"><b>${esc(p.name)}</b>${money(p.price)}</button>`).join("")}
+function addMenuItem(){let n=newItemName.value.trim(),p=+newItemPrice.value;if(!n||p<=0)return alert("Enter item name and valid price");db.menu.push({name:n,price:p});newItemName.value="";newItemPrice.value="";save()}
+function addCart(i){let p=db.menu[i],found=cart.find(x=>x.name===p.name);if(found)found.qty++;else cart.push({name:p.name,price:p.price,qty:1});renderCart()}
+function renderCart(){cartRows.innerHTML=cart.map((x,i)=>`<tr><td>${esc(x.name)}</td><td><button class="secondary" onclick="changeQty(${i},-1)">−</button> ${x.qty} <button class="secondary" onclick="changeQty(${i},1)">+</button></td><td>${money(x.price)}</td><td>${money(x.price*x.qty)}</td><td><button class="danger" onclick="cart.splice(${i},1);renderCart()">×</button></td></tr>`).join("");let sub=cart.reduce((a,x)=>a+x.price*x.qty,0),disc=Math.max(0,+discount.value||0),tax=sub*Math.max(0,+taxRate.value||0)/100;subtotal.textContent=money(sub);taxValue.textContent=money(tax);discountValue.textContent=money(disc);grandTotal.textContent=money(Math.max(0,sub+tax-disc))}
+function changeQty(i,d){cart[i].qty+=d;if(cart[i].qty<=0)cart.splice(i,1);renderCart()}
+function clearCart(){cart=[];renderCart()}
+function completeSale(){if(!cart.length)return alert("Please add items first");let sub=cart.reduce((a,x)=>a+x.price*x.qty,0),disc=Math.max(0,+discount.value||0),tax=sub*Math.max(0,+taxRate.value||0)/100,total=Math.max(0,sub+tax-disc);let sale={id:"CS-"+Date.now().toString().slice(-8),date:new Date().toISOString(),items:cart.map(x=>({...x})),subtotal:sub,discount:disc,tax,total,payment:paymentMethod.value,table:tableNo.value||"Takeaway",cashier:cashier.value||"—"};db.sales.unshift(sale);lastSaleId=sale.id;save();makeReceipt(sale);cart=[];tableNo.value="";document.getElementById("quickPrint").classList.remove("hidden");}
+function makeReceipt(s){
+const cfg=db.settings||{}, p=cfg.print||{};
+const on=(k,def=true)=>p[k]===undefined?def:!!p[k];
+const font=Number(p.font||9), compact=(p.spacing||"compact")==="compact";
+const width=(cfg.paper||80)+"mm";
+document.documentElement.style.setProperty("--paper-width",width);
+document.documentElement.style.setProperty("--receipt-font",font+"px");
+document.documentElement.style.setProperty("--receipt-padding",compact?"1.5mm":"3mm");
+receipt.style.width=width; kitchenTicket.style.width=width;
+
+const dt=new Date(s.date);
+const dateText=dt.toLocaleDateString("en-PK");
+const timeText=dt.toLocaleTimeString("en-PK",{hour:"2-digit",minute:"2-digit"});
+const meta=(label,value)=>`<div class="rc-meta-row"><span>${label}</span><b>${esc(value||"—")}</b></div>`;
+const opt=(key,label,value)=>on(key)?meta(label,value):"";
+const items=s.items.map(x=>`<tr>
+<td class="rc-item">${esc(x.name)}</td>
+<td class="rc-center">${x.qty}</td>
+<td class="rc-right">${money(x.price)}</td>
+<td class="rc-right rc-bold">${money(x.qty*x.price)}</td>
+</tr>`).join("");
+const summary=(key,label,value)=>on(key)?`<div class="rc-total-row"><span>${label}</span><span>${money(value)}</span></div>`:"";
+const address=on("address")&&cfg.address?`<div class="rc-contact">${esc(cfg.address)}</div>`:"";
+const phone=on("phone")&&cfg.phone?`<div class="rc-contact">Phone: ${esc(cfg.phone)}</div>`:"";
+const footer=on("footer")?`<div class="rc-footer">${esc(p.footerText||"Thank you for visiting Chai Spot!")}</div>`:"";
+
+receipt.innerHTML=`
+<style>
+.receipt{font-family:Arial,sans-serif!important;color:#111!important;background:#fff!important;line-height:1.25!important}
+.rc-head{text-align:center;padding-bottom:6px;border-bottom:1px dashed #555}
+.rc-logo{font-size:20px;font-weight:900;letter-spacing:2px;margin:0 0 2px}
+.rc-subtitle{font-size:9px;font-weight:bold;letter-spacing:1.4px}
+.rc-contact{font-size:9px;margin-top:2px;text-align:center}
+.rc-title{text-align:center;font-size:11px;font-weight:bold;letter-spacing:1px;margin:7px 0 5px}
+.rc-meta{font-size:9px;padding:5px 0;border-bottom:1px dashed #777}
+.rc-meta-row{display:flex;justify-content:space-between;gap:6px;margin:2px 0}
+.rc-meta-row b{text-align:right}
+.rc-items{width:100%;border-collapse:collapse;margin:6px 0!important;font-size:9px!important}
+.rc-items th{font-size:8px!important;text-transform:uppercase;border-bottom:1px solid #222!important;padding:4px 1px!important}
+.rc-items td{font-size:9px!important;padding:4px 1px!important;border-bottom:1px dotted #aaa!important;color:#111!important}
+.rc-item{width:42%;overflow-wrap:anywhere}.rc-center{text-align:center}.rc-right{text-align:right;white-space:nowrap}.rc-bold{font-weight:bold}
+.rc-summary{border-top:1px dashed #555;padding-top:5px;font-size:9px}
+.rc-total-row{display:flex;justify-content:space-between;gap:8px;margin:3px 0}
+.rc-grand{display:flex;justify-content:space-between;align-items:center;border-top:1px solid #111;border-bottom:1px solid #111;padding:6px 2px;margin-top:5px;font-size:13px;font-weight:900}
+.rc-payment{text-align:center;font-size:9px;margin-top:6px}
+.rc-footer{text-align:center;font-size:9px;font-weight:bold;border-top:1px dashed #555;margin-top:7px;padding-top:6px}
+@media print{.rc-items{break-inside:avoid}.rc-grand{break-inside:avoid}}
+</style>
+<div class="rc-head">
+<div class="rc-logo">${esc(cfg.cafe||"CHAI SPOT")}</div>
+<div class="rc-subtitle">CAFE & RESTAURANT</div>
+${address}${phone}
+</div>
+<div class="rc-title">CUSTOMER RECEIPT</div>
+<div class="rc-meta">
+${meta("Bill No.",s.id)}
+${on("date")?meta("Date",dateText+" "+timeText):""}
+${opt("order","Order",s.table)}
+${opt("cashier","Served by",s.cashier)}
+</div>
+<table class="rc-items">
+<thead><tr><th style="text-align:left">Item</th><th class="rc-center">Qty</th><th class="rc-right">Rate</th><th class="rc-right">Amount</th></tr></thead>
+<tbody>${items}</tbody>
+</table>
+<div class="rc-summary">
+${summary("subtotal","Subtotal",s.subtotal)}
+${summary("discount","Discount",s.discount)}
+${summary("tax","Tax",s.tax)}
+</div>
+<div class="rc-grand"><span>GRAND TOTAL</span><span>${money(s.total)}</span></div>
+${on("payment")?`<div class="rc-payment">Payment Method: <b>${esc(s.payment)}</b></div>`:""}
+${footer}`;
+kitchenTicket.innerHTML=`<h2>${esc(cfg.cafe||"Chai Spot")}</h2><p><b>KITCHEN TOKEN</b></p><p>${esc(s.id)}</p>${on("date")?`<p>${dt.toLocaleString()}</p>`:""}${on("order")?`<p>${esc(s.table)}</p>`:""}<hr><table><tbody>${s.items.map(x=>`<tr><td><b>${esc(x.name)}</b></td><td style="text-align:right"><b>× ${x.qty}</b></td></tr>`).join("")}</tbody></table><hr><p>Order type: ${esc(s.table)}</p>`;
+window.currentSale=s;
+}
+function printLastReceipt(){if(lastSaleId)printReceipt(lastSaleId)}
+function printLastKitchen(){if(lastSaleId)printKitchen(lastSaleId)}
+function printReceipt(id){let s=db.sales.find(x=>x.id===id);if(s){makeReceipt(s);document.getElementById("receiptArea").style.display="block";document.getElementById("kitchenArea").style.display="none";window.print();document.getElementById("receiptArea").style.display="none"}}
+function printKitchen(id){let s=db.sales.find(x=>x.id===id);if(s){makeReceipt(s);document.getElementById("kitchenArea").style.display="block";document.getElementById("receiptArea").style.display="none";window.print();document.getElementById("kitchenArea").style.display="none"}}
+function renderSales(){let q=(saleSearch?.value||"").toLowerCase();salesRows.innerHTML=db.sales.filter(s=>(s.id+s.cashier).toLowerCase().includes(q)).map(s=>`<tr><td>${s.id}</td><td>${new Date(s.date).toLocaleString()}</td><td>${esc(s.table)}</td><td>${s.payment}</td><td>${money(s.total)}</td><td><button class="secondary" onclick="printReceipt('${s.id}')">Receipt</button> <button class="secondary" onclick="printKitchen('${s.id}')">Kitchen</button></td></tr>`).join("")}
+function addExpense(){let d=expenseDesc.value.trim(),a=+expenseAmount.value;if(!d||a<=0)return alert("Enter description and amount");db.expenses.unshift({date:new Date().toISOString(),desc:d,cat:expenseCat.value,amount:a});expenseDesc.value="";expenseAmount.value="";save()}
+function renderExpenses(){expenseRows.innerHTML=db.expenses.map(x=>`<tr><td>${new Date(x.date).toLocaleDateString()}</td><td>${esc(x.desc)}</td><td>${esc(x.cat)}</td><td>${money(x.amount)}</td></tr>`).join("")}
+function addStock(){let n=stockName.value.trim(),q=+stockQty.value;if(!n||q<0||!stockUnit.value.trim())return alert("Enter item, quantity and unit");let x=db.stock.find(s=>s.name.toLowerCase()===n.toLowerCase());if(x)x.qty+=q;else db.stock.push({name:n,cat:stockCat.value,qty:q,unit:stockUnit.value,min:+stockMin.value||0});stockName.value="";stockQty.value="";stockUnit.value="";stockMin.value="";save()}
+function stockIn(i){let q=+prompt("Enter quantity to receive:");if(q>0){db.stock[i].qty+=q;save()}}
+function renderStock(){stockRows.innerHTML=db.stock.map((x,i)=>`<tr><td>${esc(x.name)}</td><td>${esc(x.cat)}</td><td>${x.qty}</td><td>${esc(x.unit)}</td><td>${x.min}</td><td>${x.qty<=x.min?'<span style="color:#e47777">Low stock</span>':'<span style="color:#5bc28a">OK</span>'}</td><td><button class="secondary" onclick="stockIn(${i})">Stock In</button></td></tr>`).join("")}
+function renderReport(){let from=reportFrom.value||"0000-01-01",to=reportTo.value||"9999-12-31",ss=db.sales.filter(x=>x.date.slice(0,10)>=from&&x.date.slice(0,10)<=to),ee=db.expenses.filter(x=>x.date.slice(0,10)>=from&&x.date.slice(0,10)<=to),s=ss.reduce((a,x)=>a+x.total,0),e=ee.reduce((a,x)=>a+x.amount,0);reportSales.textContent=money(s);reportExpenses.textContent=money(e);reportNet.textContent=money(s-e);reportOrders.textContent=ss.length}
+function saveSettings(){
+const old=db.settings||{}, prev=old.print||{};
+db.settings={
+...old,cafe:settingCafe.value.trim()||"Chai Spot",phone:settingPhone.value.trim(),
+address:settingAddress.value.trim(),paper:paperWidth.value,
+print:{
+font:printFontSize.value,spacing:printSpacing.value,
+address:printShowAddress.checked,phone:printShowPhone.checked,
+cashier:printShowCashier.checked,order:printShowOrderType.checked,
+date:printShowDate.checked,subtotal:printShowSubtotal.checked,
+tax:printShowTax.checked,discount:printShowDiscount.checked,
+payment:printShowPayment.checked,footer:printShowFooter.checked,
+footerText:printFooterText.value.trim()
+}
+};
+save();alert("Print customization saved");
+}
+function loadSettings(){
+const s=db.settings||{},p=s.print||{};
+settingCafe.value=s.cafe||"Chai Spot";settingPhone.value=s.phone||"";
+settingAddress.value=s.address||"";paperWidth.value=s.paper||"80";
+printFontSize.value=String(p.font||9);printSpacing.value=p.spacing||"compact";
+printShowAddress.checked=p.address!==false;printShowPhone.checked=p.phone!==false;
+printShowCashier.checked=p.cashier!==false;printShowOrderType.checked=p.order!==false;
+printShowDate.checked=p.date!==false;printShowSubtotal.checked=p.subtotal!==false;
+printShowTax.checked=p.tax!==false;printShowDiscount.checked=p.discount!==false;
+printShowPayment.checked=p.payment!==false;printShowFooter.checked=p.footer!==false;
+printFooterText.value=p.footerText||"Thank you for visiting Chai Spot!";
+}
+function previewPrint(){
+const sale=db.sales[0]||{id:"SAMPLE-001",date:new Date().toISOString(),items:[{name:"Karak Chai",qty:2,price:150},{name:"French Fries",qty:1,price:250}],subtotal:550,tax:0,discount:0,total:550,payment:"Cash",table:"Takeaway",cashier:"Sample"};
+saveSettings();makeReceipt(sale);
+document.getElementById("receiptArea").style.display="block";
+document.getElementById("kitchenArea").style.display="none";
+window.print();
+document.getElementById("receiptArea").style.display="none";
+}
+function exportData(){let blob=new Blob([JSON.stringify(db,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="chai-spot-backup.json";a.click();URL.revokeObjectURL(a.href)}
+function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+window.addEventListener("error", function(e){
+const box=document.getElementById("systemError");
+if(box){box.classList.remove("hidden");box.textContent="System error: "+(e.message||"Unknown error")+" — Please contact support.";}
+});
+window.addEventListener("unhandledrejection", function(e){
+const box=document.getElementById("systemError");
+if(box){box.classList.remove("hidden");box.textContent="System error: "+(e.reason?.message||String(e.reason));}
+});
+try { refresh(); } catch(e) {
+const box=document.getElementById("systemError");
+if(box){box.classList.remove("hidden");box.textContent="Startup error: "+e.message;}
+console.error(e);
+}
+</script></body></html>
