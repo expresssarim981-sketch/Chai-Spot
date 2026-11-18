@@ -228,6 +228,22 @@ h1{font-size:23px}
   const SUPABASE_URL = "https://zyyguhispdilyagymfvq.supabase.co";
 sb_publishable_vvK_d8X_QDm045_fB8sBww_HFzqDlYJ
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  async function testSupabaseConnection() {
+  const { data, error } = await supabaseClient
+    .from('categories')
+    .select('*')
+    .limit(1);
+
+  if (error) {
+    console.error('Supabase Error:', error.message);
+    alert('Connection Error: ' + error.message);
+  } else {
+    console.log('Supabase Connected Successfully!');
+    alert('Supabase Connection Successful!');
+  }
+}
+
+testSupabaseConnection();
 const todaySales = document.getElementById("todaySales");
 const todayExpenses = document.getElementById("todayExpenses");
 const todayNet = document.getElementById("todayNet");
