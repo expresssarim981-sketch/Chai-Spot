@@ -486,9 +486,98 @@ window.currentSale=s;
 }
 function printLastReceipt(){if(lastSaleId)printReceipt(lastSaleId)}
 function printLastKitchen(){if(lastSaleId)printKitchen(lastSaleId)}
-function printReceipt(id){let s=db.sales.find(x=>x.id===id);if(s){makeReceipt(s);document.getElementById("receiptArea").style.display="block";document.getElementById("kitchenArea").style.display="none";window.print();document.getElementById("receiptArea").style.display="none"}}
-function printKitchen(id){let s=db.sales.find(x=>x.id===id);if(s){makeReceipt(s);document.getElementById("kitchenArea").style.display="block";document.getElementById("receiptArea").style.display="none";window.print();document.getElementById("kitchenArea").style.display="none"}}
-function renderSales(){let q=(saleSearch?.value||"").toLowerCase();salesRows.innerHTML=db.sales.filter(s=>(s.id+s.cashier).toLowerCase().includes(q)).map(s=>`<tr><td>${s.id}</td><td>${new Date(s.date).toLocaleString()}</td><td>${esc(s.table)}</td><td>${s.payment}</td><td>${money(s.total)}</td><td><button class="secondary" onclick="printReceipt('${s.id}')">Receipt</button> <button class="secondary" onclick="printKitchen('${s.id}')">Kitchen</button></td></tr>`).join("")}
+
+async function renderSales() {
+  const q = (saleSearch?.value || "").toLowerCase();
+
+  const { data, error } = await supabaseClient
+    .from("orders")
+    .select(`
+      id,
+      bill_number,
+      created_at,
+      total,
+      subtotal,
+      discount,
+      tax,
+      payment_method,
+      table_no,
+      cashier,
+      order_items (
+        quantity,
+        price,
+        products (name)
+      )
+    `)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("Sales Load Error:", error.message);
+    salesRows.innerHTML =
+      `<tr><td colspan="6">Sales Load Error: ${esc(error.message)}</td></tr>`;
+    return;
+  }
+
+  db.sales = (data || []).map(o => ({
+    id: o.bill_number || ("CS-" + o.id),
+    date: o.created_at,
+    total: Number(o.total || 0),
+    subtotal: Number(o.subtotal || 0),
+    discount: Number(o.discount || 0),
+    tax: Number(o.tax || 0),
+    payment: o.payment_method || "—",
+    table: o.table_no || "Takeaway",
+    cashier: o.cashier || "—",
+    items: (o.order_items || []).map(i => ({
+      name: i.products?.name || "Unknown Product",
+      qty: Number(i.quantity),
+      price: Number(i.price)
+    }))
+  }));
+
+  const filtered = db.sales.filter(s =>
+    (s.id + " " + s.cashier).toLowerCase().includes(q)
+  );
+
+  salesRows.innerHTML = filtered.map(s => `
+    <tr>
+      <td>${esc(s.id)}</td>
+      <td>${new Date(s.date).toLocaleString()}</td>
+      <td>${esc(s.table)}</td>
+      <td>${esc(s.payment)}</td>
+      <td>${money(s.total)}</td>
+      <td>
+        <button class="secondary" onclick="printReceipt('${s.id}')">Receipt</button>
+        <button class="secondary" onclick="printKitchen('${s.id}')">Kitchen</button>
+      </td>
+    </tr>
+  `).join("");
+}
+
+function printReceipt(id) {
+  let s = db.sales.find(x => x.id === id);
+
+  if (s) {
+    makeReceipt(s);
+    document.getElementById("receiptArea").style.display = "block";
+    document.getElementById("kitchenArea").style.display = "none";
+    window.print();
+    document.getElementById("receiptArea").style.display = "none";
+  }
+}
+
+function printKitchen(id) {
+  let s = db.sales.find(x => x.id === id);
+
+  if (s) {
+    makeReceipt(s);
+    document.getElementById("kitchenArea").style.display = "block";
+    document.getElementById("receiptArea").style.display = "none";
+    window.print();
+    document.getElementById("kitchenArea").style.display = "none";
+  }
+}
+
 function addExpense(){let d=expenseDesc.value.trim(),a=+expenseAmount.value;if(!d||a<=0)return alert("Enter description and amount");db.expenses.unshift({date:new Date().toISOString(),desc:d,cat:expenseCat.value,amount:a});expenseDesc.value="";expenseAmount.value="";save()}
 function renderExpenses(){expenseRows.innerHTML=db.expenses.map(x=>`<tr><td>${new Date(x.date).toLocaleDateString()}</td><td>${esc(x.desc)}</td><td>${esc(x.cat)}</td><td>${money(x.amount)}</td></tr>`).join("")}
 function addStock(){let n=stockName.value.trim(),q=+stockQty.value;if(!n||q<0||!stockUnit.value.trim())return alert("Enter item, quantity and unit");let x=db.stock.find(s=>s.name.toLowerCase()===n.toLowerCase());if(x)x.qty+=q;else db.stock.push({name:n,cat:stockCat.value,qty:q,unit:stockUnit.value,min:+stockMin.value||0});stockName.value="";stockQty.value="";stockUnit.value="";stockMin.value="";save()}
